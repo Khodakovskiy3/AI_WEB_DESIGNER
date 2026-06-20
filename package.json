@@ -1,0 +1,7 @@
+{
+  "name": "ivory-dental-clinic",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "npx serve . --listen tcp://0.0.0.0:$PORT"
+  }
+}
