@@ -877,15 +877,12 @@ if (heroBgVideo) {
 }
 
 // ─── ЕФЕКТ 1: CLIP-PATH REVEAL (hero text) ───
-const crObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('revealed');
-      crObs.unobserve(e.target);
-    }
+// Hero завжди у viewport — тригеримо після першого рендеру
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.cr').forEach(el => el.classList.add('revealed'));
   });
-}, { threshold: 0.1 });
-document.querySelectorAll('.cr').forEach(el => crObs.observe(el));
+});
 
 // ─── ЕФЕКТ 2: STICKY SCROLL (services наїжджає на hero) ───
 const stickyScene = document.querySelector('.sticky-scene');
