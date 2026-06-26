@@ -298,6 +298,55 @@
   /* ─── GRID BG ─── */
   .grid-bg { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px); background-size: 80px 80px; pointer-events: none; }
 
+  /* ─── CLIP-PATH REVEAL ─── */
+  .cr {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transition: clip-path 0.8s ease, opacity 0.25s ease;
+  }
+  .cr.revealed { clip-path: inset(0 0% 0 0); opacity: 1; }
+  .cr-d1 { transition-delay: 0.1s; }
+  .cr-d2 { transition-delay: 0.28s; }
+  .cr-d3 { transition-delay: 0.46s; }
+  .cr-d4 { transition-delay: 0.62s; }
+  .cr-d5 { transition-delay: 0.78s; }
+
+  /* ─── STICKY SCROLL SCENE ─── */
+  .sticky-scene {
+    position: relative;
+    height: 300vh;
+  }
+  .sticky-hero {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    z-index: 1;
+    overflow: hidden;
+  }
+  #services {
+    position: relative;
+    z-index: 2;
+    margin-top: -100vh;
+    transform: translateY(100vh);
+    border-radius: 48px 48px 0 0;
+    will-change: transform;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  /* ─── HERO STATS (count-up layout) ─── */
+  .hero-stats {
+    display: flex;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    padding: 0 28px 0 0;
+    margin-right: 28px;
+    border-right: 1px solid rgba(255,255,255,0.12);
+  }
+  .stat-item:last-child { border-right: none; padding-right: 0; margin-right: 0; }
+
   /* ─── REVEAL ─── */
   .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
@@ -381,7 +430,9 @@
   <a href="#cta" onclick="toggleMenu()" style="color:var(--mint)">Записатися →</a>
 </div>
 
-<!-- ═══════════════ HERO ═══════════════ -->
+<!-- ═══════════════ STICKY SCENE ═══════════════ -->
+<div class="sticky-scene">
+<div class="sticky-hero">
 <section id="hero">
 
   <!-- Full-screen video background -->
@@ -395,24 +446,24 @@
 
   <div class="hero-left">
     <div class="grid-bg"></div>
-    <div class="hero-badge"><div class="hero-badge-dot"></div>Стоматологія №1 в місті</div>
-    <h1 class="hero-h1">ВАША<br>ІДЕАЛЬНА<br><em>ПОСМІШКА</em><br>ТЕПЕР</h1>
-    <p class="hero-sub">Передові технології, дбайливий підхід та команда досвідчених стоматологів — усе для того, щоб ваші зуби сяяли здоров'ям та красою.</p>
-    <div class="hero-actions">
+    <div class="hero-badge cr cr-d1"><div class="hero-badge-dot"></div>Стоматологія №1 в місті</div>
+    <h1 class="hero-h1 cr cr-d2">ВАША<br>ІДЕАЛЬНА<br><em>ПОСМІШКА</em><br>ТЕПЕР</h1>
+    <p class="hero-sub cr cr-d3">Передові технології, дбайливий підхід та команда досвідчених стоматологів — усе для того, щоб ваші зуби сяяли здоров'ям та красою.</p>
+    <div class="hero-actions cr cr-d4">
       <a href="#cta" class="btn-primary">Записатися онлайн</a>
       <a href="#transformation" class="btn-outline">Результати лікування</a>
     </div>
-    <div class="hero-stats">
+    <div class="hero-stats cr cr-d5">
       <div class="stat-item">
-        <div class="stat-num">12<span>K+</span></div>
+        <div class="stat-num"><span class="count-up" data-target="12" data-suffix="K+">0</span></div>
         <div class="stat-label">Пацієнтів</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">98<span>%</span></div>
+        <div class="stat-num"><span class="count-up" data-target="98" data-suffix="%">0</span></div>
         <div class="stat-label">Задоволеність</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">15<span>+</span></div>
+        <div class="stat-num"><span class="count-up" data-target="15" data-suffix="+">0</span></div>
         <div class="stat-label">Років досвіду</div>
       </div>
     </div>
@@ -422,6 +473,8 @@
     <div class="hero-glow"></div>
   </div>
 </section>
+</div><!-- /sticky-hero -->
+</div><!-- /sticky-scene -->
 
 <!-- ═══════════════ SERVICES ═══════════════ -->
 <section id="services">
@@ -822,6 +875,71 @@ if (heroBgVideo) {
     document.addEventListener('pointerdown', () => heroBgVideo.play(), { once: true });
   });
 }
+
+// ─── ЕФЕКТ 1: CLIP-PATH REVEAL (hero text) ───
+const crObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('revealed');
+      crObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.cr').forEach(el => crObs.observe(el));
+
+// ─── ЕФЕКТ 2: STICKY SCROLL (services наїжджає на hero) ───
+const stickyScene = document.querySelector('.sticky-scene');
+const servicesSection = document.getElementById('services');
+if (stickyScene && servicesSection) {
+  function updateServicesSlide() {
+    const rect = stickyScene.getBoundingClientRect();
+    const scrolled = -rect.top;
+    const scrollable = stickyScene.offsetHeight - window.innerHeight; // ~200vh
+    const progress = scrolled / scrollable; // 0→1
+
+    // Анімація в останніх 33% скролу
+    const start = 0.67;
+    const anim = Math.max(0, Math.min(1, (progress - start) / (1 - start)));
+    // easeOutCubic
+    const ease = 1 - Math.pow(1 - anim, 3);
+    const ty = (1 - ease) * 100;
+    servicesSection.style.transform = `translateY(${ty}vh)`;
+
+    // border-radius зменшується коли секція повністю на місці
+    const br = (1 - ease) * 48;
+    servicesSection.style.borderRadius = `${br}px ${br}px 0 0`;
+  }
+  window.addEventListener('scroll', updateServicesSlide, { passive: true });
+  updateServicesSlide();
+}
+
+// ─── ЕФЕКТ 3: COUNT-UP stats ───
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+function startCountUp(el) {
+  const target = +el.dataset.target;
+  const suffix = el.dataset.suffix || '';
+  const duration = 1500;
+  const start = performance.now();
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const value = Math.round(easeOutCubic(progress) * target);
+    el.textContent = value + suffix;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+const countObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      startCountUp(e.target);
+      countObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.count-up').forEach(el => countObs.observe(el));
 
 // ─── SCROLL REVEAL ───
 const obs = new IntersectionObserver(entries => {
