@@ -314,7 +314,7 @@
   /* ─── STICKY SCROLL SCENE ─── */
   .sticky-scene {
     position: relative;
-    height: 300vh;
+    height: 140vh;
   }
   .sticky-hero {
     position: sticky;
@@ -894,8 +894,8 @@ if (stickyScene && servicesSection) {
     const scrollable = stickyScene.offsetHeight - window.innerHeight; // ~200vh
     const progress = scrolled / scrollable; // 0→1
 
-    // Анімація в останніх 33% скролу
-    const start = 0.67;
+    // Анімація в останніх 50% скролу
+    const start = 0.5;
     const anim = Math.max(0, Math.min(1, (progress - start) / (1 - start)));
     // easeOutCubic
     const ease = 1 - Math.pow(1 - anim, 3);
